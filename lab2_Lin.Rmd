@@ -1,0 +1,118 @@
+---
+title: "lab2_lin"
+author: "Keven Lin"
+date: 9/17/2021
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("tidyverse")
+library(classdata)
+data(choco)
+```
+
+# Searching for the Best Chocolates
+### 1. How are the cocoa percent distributed? Create both a histogram and a boxplot and describe them. Don’t forget to mention outliers, if there are any.
+```{r}
+cocoDist <- choco$CocoaPercent
+hist(cocoDist)
+```
+
+```{r}
+boxplot(cocoDist, 
+        main = "Boxplot of Cocoa Percentage", 
+        ylab = "Frequency %")
+```
+
+We can see that there are some rare manufactures that produce chocolate with 100% cocoa and chocolate with less than 50% cocoa.
+
+
+
+### 2. How does the number of ratings depend on the country of bean origin? Draw a bar chart of the number of ratings by bean origin. [Hint: If your graph is too dense and the labels are not legible, show fewer bean origins.]
+
+```{r}
+cocoRating <- choco %>%
+  group_by(CountryBeanOrigin) %>% 
+  summarise(avgRating = mean(Rating)) %>%
+  head()
+
+cocoRating %>%
+  ggplot(aes(CountryBeanOrigin, avgRating)) +
+  geom_col() +
+  labs(title = "Average Bean Rating by Country") +
+  geom_text(aes(label = signif(avgRating)))
+
+```
+
+
+
+
+### 3. Do ratings depend on the cacao percentage of a chocolate bar? Create both numerical and graphical summaries, and explain. [Hint: Think about why the scatterplot is not a very good choice for visualization here.]
+```{r}
+
+# get choco with higest Coco percentage and rating
+choco %>% filter(CocoaPercent == 100) %>% arrange(-Rating) %>% head(1)
+# get average Rating for choco with 100% coco percentage
+choco %>% group_by(CocoaPercent) %>% summarise(avgRating = mean(Rating)) %>% arrange(-CocoaPercent) %>% head(1)
+# show bar chart with average coco percentage by rating
+sortedData <- choco %>% group_by(Rating) %>% summarise(Percentage = mean(CocoaPercent))
+sortedData %>% ggplot(aes(Rating, Percentage)) + geom_col() + labs(title = "Average Percentage by Rating") + geom_text(aes(label = signif(Rating)))
+  
+```
+
+Though both the numerical and graphical summary, we can see that the cocoa percentage does not play a significant role in determining the rating of the chocolate. 
+An example of this in action is chocolate with highest coco percentage (100%) and the high rating, by it's coco percentage, only receive 3.5 out of 5. Compare to the average 4 point chocolate (out of 5 rating) has a coco percentage of slightly less of 75%. 
+As a result we can safely conclude that coco percentage does not play a significant role in determining a chocolate's rating. 
+
+### 4. How do different bean origins compare in terms of the flavor of chocolates? Are beans from some places better than the other? Create both numerical and graphical summaries, and explain.
+```{r}
+# get country that on average produce the best rated bean
+choco %>% group_by(CountryBeanOrigin) %>% summarise(avgRating = mean(Rating)) %>% arrange(-avgRating) %>% head(1)
+# get country that on average produce the worst rated bean
+choco %>% group_by(CountryBeanOrigin) %>% summarise(avgRating = mean(Rating)) %>% arrange(avgRating) %>% head(1)
+
+choco %>% group_by(CountryBeanOrigin) %>% summarise(bestRating = max(Rating), worstRating = min(Rating), avgRating = mean(Rating)) %>% arrange(-avgRating) 
+
+# plot Best 10 Country With The Highest Average Rating
+sortedData <- choco %>% group_by(CountryBeanOrigin) %>% summarise(Rating = mean(Rating)) %>% arrange(-Rating) %>% head(10)
+sortedData %>% ggplot(aes(CountryBeanOrigin, Rating)) + geom_col() + labs(title = "Best 10 Country With The Highest Average Rating") + coord_flip() + geom_text(aes(label = signif(Rating)))
+
+```
+
+We can see that the bean's Country of origin does play a role in determining the flavor (rating) of the beans. As the county with the average best rated beans are from Tobago and the average worst rated beans are from Puerto Rico. However, just because Puerto Rico has the worst average rating compare to the other countries, it does not mean Puerto Rico produces the worst beans. As there are still production faculties that can produce beans ranked 3.5. That is comparable to Sao Tome & Principle (the top 2nd Country by average rating). So at the end of the day we should be careful in grouping regions together within the same country as they can have wildly different results.   
+
+### 5. If you work on this lab by yourself, brainstorm two analyses you would like to perform. If you work with a teammate, brainstorm at least three analyses with your teammate. Describe in plain language what comparisons are you making. Create suitable numerical and graphical summaries for your analyses. Describe the results.
+
+1. I want to see which Manufacturer produces the best rated chocolate.
+2. I want to see which Manufacturer produces the worst rated chocolate.
+3. I want to see what year revives the best rating so that we can determine when was the best year for chocolate and cocoa production.
+4. I want to see what year revives the worst rating so that we can determine when was the worst year for chocolate and cocoa production.
+5. Show me a graph of what was the average rating by year so we can get a good idea what was happening in the chocolate and cocoa market. 
+
+```{r}
+# 1
+choco %>% group_by(Company) %>% summarise(avgRating = mean(Rating)) %>% arrange(-avgRating) %>% head(1)
+```
+```{r}
+# 2
+choco %>% group_by(Company) %>% summarise(avgRating = mean(Rating)) %>% arrange(avgRating) %>% head(1)
+```
+```{r}
+#3
+str(choco)
+choco %>% group_by(ReviewDate) %>% summarise(avgRating = mean(Rating)) %>% arrange(-avgRating) %>% head(1)
+```
+```{r}
+# 4
+choco %>% group_by(ReviewDate) %>% summarise(avgRating = mean(Rating)) %>% arrange(avgRating) %>% head(1)
+```
+```{r}
+# 5
+sortedData <- choco %>% group_by(ReviewDate) %>% summarise(Rating = mean(Rating)) %>% arrange(ReviewDate)
+sortedData %>% ggplot(aes(ReviewDate, Rating)) + geom_col() + labs(title = "Average Rating by year") + geom_text(aes(label = signif(Rating)))
+```
+
