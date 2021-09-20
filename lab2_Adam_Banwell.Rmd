@@ -1,0 +1,99 @@
+---
+title: "lab2_Adam_Banwell"
+author: "Adam Banwell"
+date: "9/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Commands
+
+## installation
+```{r}
+library(classdata)
+data(choco)
+str(choco)
+```
+
+#Searching for the Best Chocolates
+
+#Question 1
+```{r}
+#grab cocoa percent data from Choco data and create histogram/boxplot
+distributedCocoa = choco$CocoaPercent
+hist(distributedCocoa)
+boxplot(distributedCocoa, horizontal = TRUE)
+```
+
+For the histogram and box plot above, there are outliers clearly seen outside the whiskers of the box plot.The whiskers start at about 64% and end about 80% so all points below or above those points respectfully are considered outliers.
+
+#Question 2
+```{r}
+#install plotting libraries, summarise and group choco data by countrybeanorigin and avgrating
+library(dplyr)
+library(ggplot2)
+ratingsVOrigin = summarise(group_by(choco, CountryBeanOrigin), avgRating = mean(Rating))
+ratingsVOrigin
+
+ggplot(ratingsVOrigin, aes(x=CountryBeanOrigin, y=avgRating)) +
+    geom_bar(stat='identity')
+```
+
+According to the graph, regardless of being too dense, I find it obvious to see that the average rating is around 3 across all countries.
+
+#Question 3
+```{r}
+#group percent against rating of cocoa
+ratingsVPercent = summarise(group_by(choco, CocoaPercent), avgRating=mean(Rating))
+ratingsVPercent
+ggplot(ratingsVPercent, aes(x=CocoaPercent, y=avgRating)) +
+    geom_bar(stat='identity')
+
+```
+
+Using the numerical and graphical projections above, ratings do not depend on cocoa percent of a chocalate bar. Across all percents the ratings vary.
+
+#Question 4
+```{r}
+#group countries vs primary flavors
+flavorsVOrigin = summarise(group_by(choco, CountryBeanOrigin), Characteristics1)
+flavorsVOrigin
+ggplot(na.omit(flavorsVOrigin), aes(x=CountryBeanOrigin, y=Characteristics1)) +
+    geom_bar(stat='identity') + 
+    coord_flip()
+```
+
+According to the numerical and graphical projections above, different bean origins will compare largely different in terms of flavors of chocolate. For example, Venezuela, Peru, Madagascar, Ecuador, and Dominican Republic all have a lot wide range of available flavors of chocolate. Using information gained from question 2's projections, the answer is no, beans from some places are not better than others. Other places will just have more flavors available than some.
+
+#Question 5
+
+1) Comparison of Company to Chocolate Rating, Does Company effect Rating?
+
+2) Comparison of ReviewDate to Chocolate Rating, Does ReviewDate effect Rating?
+
+3) Comparison of SpecificBeanOrigin to Chocolate Rating, Does SpecificBeanOrigin effect Rating?
+
+```{r}
+#group together by comparisons listed above 3 different ways
+groupings = summarise(group_by(choco, Company), avgRating=mean(Rating))
+groupings
+ggplot(groupings, aes(x=Company, y=avgRating)) +
+    geom_bar(stat='identity')
+
+groupings = summarise(group_by(choco, ReviewDate), avgRating=mean(Rating))
+groupings
+ggplot(groupings, aes(x=ReviewDate, y=avgRating)) +
+    geom_bar(stat='identity')
+
+groupings = summarise(group_by(choco, SpecificBeanOrigin), avgRating=mean(Rating))
+groupings
+ggplot(groupings, aes(x=SpecificBeanOrigin, y=avgRating)) +
+    geom_bar(stat='identity')
+
+```
+
+
+

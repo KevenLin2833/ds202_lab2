@@ -1,6 +1,6 @@
 ---
-title: "lab2_lin"
-author: "Keven Lin"
+title: "team"
+author: "Keven Lin & Adam Banwell"
 date: 9/17/2021
 output: html_document
 ---
@@ -13,8 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library("tidyverse")
 library(classdata)
 data(choco)
-str(choco)
-choco
 ```
 
 # Searching for the Best Chocolates
@@ -22,17 +20,10 @@ choco
 ```{r}
 cocoDist = choco$CocoaPercent
 hist(cocoDist)
+boxplot(cocoDist, horizontal = TRUE)
 ```
 
-```{r}
-boxplot(cocoDist, 
-        main = "Boxplot of Cocoa Percentage", 
-        ylab = "Frequency %")
-```
-
-We can see that there are some rare manufactures that produce chocolate with 100% cocoa and chocolate with less than 50% cocoa.
-
-
+For the histogram and box plot above, there are outliers clearly seen outside the whiskers of the box plot.The whiskers start at about 64% and end about 80% so all points below or above those points respectfully are considered outliers.
 
 ### 2. How does the number of ratings depend on the country of bean origin? Draw a bar chart of the number of ratings by bean origin. [Hint: If your graph is too dense and the labels are not legible, show fewer bean origins.]
 
@@ -51,7 +42,7 @@ cocoRating %>%
 ```
 
 
-
+According to the graph, regardless of being too dense, we find it obvious to see that the average rating is around 3 across all countries.
 
 ### 3. Do ratings depend on the cacao percentage of a chocolate bar? Create both numerical and graphical summaries, and explain. [Hint: Think about why the scatterplot is not a very good choice for visualization here.]
 ```{r}
@@ -96,32 +87,26 @@ Through our analysis, we notice that there only 6 counties that are able to prod
 
 ### 5. If you work on this lab by yourself, brainstorm two analyses you would like to perform. If you work with a teammate, brainstorm at least three analyses with your teammate. Describe in plain language what comparisons are you making. Create suitable numerical and graphical summaries for your analyses. Describe the results.
 
-1. I want to see which Manufacturer produces the best rated chocolate.
-2. I want to see which Manufacturer produces the worst rated chocolate.
-3. I want to see what year revives the best rating so that we can determine when was the best year for chocolate and cocoa production.
-4. I want to see what year revives the worst rating so that we can determine when was the worst year for chocolate and cocoa production.
-5. Show me a graph of what was the average rating by year so we can get a good idea what was happening in the chocolate and cocoa market. 
-
+1) Comparison of Company to Chocolate Rating, Does Company effect Rating?
 ```{r}
-# 1
-choco %>% group_by(Company) %>% summarise(avgRating = mean(Rating)) %>% arrange(-avgRating) %>% head(1)
-```
-```{r}
-# 2
-choco %>% group_by(Company) %>% summarise(avgRating = mean(Rating)) %>% arrange(avgRating) %>% head(1)
-```
-```{r}
-#3
-str(choco)
-choco %>% group_by(ReviewDate) %>% summarise(avgRating = mean(Rating)) %>% arrange(-avgRating) %>% head(1)
-```
-```{r}
-# 4
-choco %>% group_by(ReviewDate) %>% summarise(avgRating = mean(Rating)) %>% arrange(avgRating) %>% head(1)
-```
-```{r}
-# 5
-sortedData = choco %>% group_by(ReviewDate) %>% summarise(Rating = mean(Rating)) %>% arrange(ReviewDate)
-sortedData %>% ggplot(aes(ReviewDate, Rating)) + geom_col() + labs(title = "Average Rating by year") + geom_text(aes(label = signif(Rating)))
+groupings = summarise(group_by(choco, Company), avgRating=mean(Rating))
+groupings
+ggplot(groupings, aes(x=Company, y=avgRating)) +
+    geom_bar(stat='identity')
 ```
 
+2) Comparison of ReviewDate to Chocolate Rating, Does ReviewDate effect Rating?
+```{r}
+groupings = summarise(group_by(choco, ReviewDate), avgRating=mean(Rating))
+groupings
+ggplot(groupings, aes(x=ReviewDate, y=avgRating)) +
+    geom_bar(stat='identity')
+```
+
+3. Show me a graph of what was the average rating by year so we can get a good idea what was happening in the chocolate and cocoa market. 
+```{r}
+groupings = summarise(group_by(choco, SpecificBeanOrigin), avgRating=mean(Rating))
+groupings
+ggplot(groupings, aes(x=SpecificBeanOrigin, y=avgRating)) +
+    geom_bar(stat='identity')
+```
